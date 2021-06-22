@@ -3,7 +3,7 @@ def mul(A, B):
 	for i in range(len(A)):
 		for j in range(len(B[0])):
 			for k in range(len(A[0])):
-				ret[i][j] = (A[i][k] * B[k][j] + ret[i][j])
+				ret[i][j] += A[i][k] * B[k][j]
 	return ret
 
 A = [[1, 2, 3], [4, 5, 6]]
