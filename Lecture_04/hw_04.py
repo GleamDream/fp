@@ -15,7 +15,7 @@ def bisection(a, b, z):
 		return c
 
 def root(z):
-	return bisection(0, z ** 2 + 1, z)
+	return bisection(0, z + 1, z)
 
 for i in range(2, 10):
 	print("root {} = {:.8f}".format(i, root(i)))
