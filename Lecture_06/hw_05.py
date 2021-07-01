@@ -4,8 +4,8 @@ def bsort(L):
 			if L[i] > L[j]:
 				L[i], L[j] = L[j], L[i]
 
-from random import random
-L = [int(random() * 10) for _ in range(10)]
+from random import randint
+L = [randint(0, 100) for _ in range(10)]
 print(L)
 bsort(L)
 print(L)
