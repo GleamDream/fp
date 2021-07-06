@@ -5,11 +5,7 @@ from PIL import Image
 import sys
 
 def product(x, y):
-    ret = list()
-    for _x in x:
-        for _y in y:
-            ret.append((_x, _y))
-    return ret
+    return [(_x, _y) for _x in x for _y in y]
 
 class UnionFind:
     def __init__(self, n: int, m: int):
