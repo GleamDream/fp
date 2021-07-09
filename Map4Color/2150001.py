@@ -10,10 +10,10 @@ def product(x, y):
     return [(_x, _y) for _x in x for _y in y]
 
 class UnionFind:
-    def __init__(self, n: int, m: int):
+    def __init__(self, n, m):
         self.table = [[(-1, -1)] * n for _ in range(m)]
     
-    def root(self, p: tuple) -> tuple:
+    def root(self, p):
         x, y = p
         stack = list()
         tbl = self.table
@@ -24,10 +24,10 @@ class UnionFind:
             tbl[_y][_x] = (x, y)
         return (x, y)
     
-    def find(self, p1: tuple, p2: tuple) -> bool:
+    def find(self, p1, p2):
         return self.root(p1) == self.root(p2)
     
-    def union(self, p1: tuple, p2: tuple) -> None:
+    def union(self, p1, p2):
         r1 = self.root(p1)
         r2 = self.root(p2)
         if r1 == r2:
@@ -43,7 +43,7 @@ class UnionFind:
             self.table[r1[1]][r1[0]] = r2
 
 class ImageProcessing:
-    def __init__(self, img: Image):
+    def __init__(self, img):
         self.img = img
         self.w, self.h = self.img.size
         self.uf = UnionFind(self.w, self.h)
@@ -52,7 +52,7 @@ class ImageProcessing:
         self.fw = 5 # Frame Wdith
         self.color = [(255, 0, 0), (0, 0, 255), (0, 255, 0), (255, 0, 255)]
     
-    def classify(self) -> None:
+    def classify(self):
         for y, x in product(range(self.h - 1), range(self.w - 1)):
             if self.img.getpixel((x, y)) == (0, 0, 0):
                 self.frame.add((x, y))
@@ -65,7 +65,7 @@ class ImageProcessing:
                 prg = 25 * y // self.h
                 print("\r [{0}] {1:3}%".format("#" * prg + " " * (50 - prg), prg * 2), end="")
     
-    def paint(self, colors) -> None:
+    def paint(self, colors):
         new = Image.new("RGB", (self.w, self.h))
         for y, x in product(range(self.h - 1), range(self.w - 1)):
             if (x, y) in self.frame:
@@ -95,7 +95,7 @@ class ImageProcessing:
                 prg = 15 * y // self.h + 25
                 print("\r [{0}] {1:3}%".format("#" * prg + " " * (50 - prg), prg * 2), end="")
         
-        points: set = set()
+        points = set()
         for key, value in self.dgraph.items():
             points.add(key)
             for v in value:
@@ -111,8 +111,8 @@ class ImageProcessing:
 
 class Queue:
     def __init__(self, data = []):
-        self.data: list = data
-        self.lightly: set = set()
+        self.data = data
+        self.lightly = set()
 
     def append(self, x):
         if x in self.lightly:
@@ -129,41 +129,39 @@ class Queue:
         return cell
 
 class Node:
-    def __init__(self, point: tuple, nears: list):
-        self.point: tuple = point
-        self.nears: list = nears
-        self.color: int = 0
+    def __init__(self, point, nears):
+        self.point = point
+        self.nears = nears
+        self.color = 0
     
-    def __repr__(self) -> str:
+    def __repr__(self):
         return f'Node index{self.point} nears:{self.nears} sign:{self.color}'
 
 class Solver:
-    def __init__(self, graph: dict):
-        self.graph: dict = graph
-        self.nodes: dict = dict()
-        self.nc: int = 4
-        self.retry = 0
+    def __init__(self, graph):
+        self.graph = graph
+        self.nodes = dict()
+        self.nc = 4
         for key, value in graph.items():
             self.nodes[key] = Node(key, value)
     
-    def score(self) -> int:
-        s: int = 0
+    def score(self):
+        s = 0
         for key, value in self.graph.items():
             for v in value:
                 if self.nodes[key].color == self.nodes[v].color:
                     s -= 1
         return s
 
-    def solve(self) -> dict:
-        queue: Queue = Queue()
+    def solve(self):
+        queue = Queue()
         for k in self.nodes.keys():
             queue.append(self.nodes[k])
         
-        before: int = -1e8
-        after: int = -1e8
+        before, after = -1e8, -1e8
         while after != 0:
-            node: Node = queue.popleft()
-            befcolor: int = node.color
+            node = queue.popleft()
+            befcolor = node.color
             before = self.score()
             for i in range(self.nc - 1):
                 self.nodes[node.point].color = (self.nodes[node.point].color + 1) % self.nc
@@ -186,8 +184,8 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("You will need to execute with filename")
         sys.exit(-1)
-    ip: ImageProcessing = ImageProcessing(Image.open(sys.argv[1]).convert("RGB"))
+    ip = ImageProcessing(Image.open(sys.argv[1]).convert("RGB"))
     ip.classify()
     ip.graph()
-    solver: Solver = Solver(ip.dgraph)
+    solver = Solver(ip.dgraph)
     ip.paint(solver.solve())
