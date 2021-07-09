@@ -1,5 +1,7 @@
 # name: Hiromu Ikemura
 # id: 2150001
+# acknowledgement: https://qiita.com/PondVillege/items/552b72e36126125074dd
+# This article was written by me.
 
 from PIL import Image
 import sys
@@ -48,7 +50,7 @@ class ImageProcessing:
         self.dgraph = dict()
         self.frame = set()
         self.fw = 5 # Frame Wdith
-        self.color = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 0, 255)]
+        self.color = [(255, 0, 0), (0, 0, 255), (0, 255, 0), (255, 0, 255)]
     
     def classify(self) -> None:
         for y, x in product(range(self.h - 1), range(self.w - 1)):
@@ -58,6 +60,10 @@ class ImageProcessing:
             for _x, _y in zip([x, x + 1], [y + 1, y]):
                 if self.img.getpixel((x, y)) == self.img.getpixel((_x, _y)):
                     self.uf.union((x, y), (_x, _y))
+            
+            if x == 0:
+                prg = 25 * y // self.h
+                print("\r [{0}] {1:3}%".format("#" * prg + " " * (50 - prg), prg * 2), end="")
     
     def paint(self, colors) -> None:
         new = Image.new("RGB", (self.w, self.h))
@@ -68,21 +74,26 @@ class ImageProcessing:
             new.putpixel((x, y),
                 self.color[colors.get(self.uf.root((x, y)), 0)]
             )
+            if x == 0:
+                prg = 10 * y // self.h + 40
+                print("\r [{0}] {1:3}%".format("#" * prg + " " * (50 - prg), prg * 2), end="")
         new.save("a.png")
+        print("\r [{0}] {1}%".format("#" * 50, 100))
     
     def graph(self):
         for y, x in product(range(self.h - self.fw), range(self.w - self.fw)):
             if (x, y) in self.frame or (x, y + self.fw) in self.frame or (x + self.fw, y) in self.frame:
                 continue
-            if not self.uf.find((x, y), (x, y + self.fw)):
-                _x, _y = self.uf.root((x, y))
-                self.dgraph.setdefault((_x, _y), set())
-                self.dgraph[(_x, _y)].add(self.uf.root((x, y + self.fw)))
 
-            if not self.uf.find((x, y), (x + self.fw, y)):
-                _x, _y = self.uf.root((x, y))
-                self.dgraph.setdefault((_x, _y), set())
-                self.dgraph[(_x, _y)].add(self.uf.root((x + self.fw, y)))
+            for _x, _y in zip([x, x + self.fw], [y + self.fw, y]):
+                if not self.uf.find((x, y), (_x, _y)):
+                    rx, ry = self.uf.root((x, y))
+                    self.dgraph.setdefault((rx, ry), set())
+                    self.dgraph[(rx, ry)].add(self.uf.root((_x, _y)))
+
+            if x == 0:
+                prg = 15 * y // self.h + 25
+                print("\r [{0}] {1:3}%".format("#" * prg + " " * (50 - prg), prg * 2), end="")
         
         points: set = set()
         for key, value in self.dgraph.items():
@@ -100,14 +111,20 @@ class ImageProcessing:
 
 class Queue:
     def __init__(self, data = []):
-        self.data = data
+        self.data: list = data
+        self.lightly: set = set()
 
     def append(self, x):
-        self.data.append(x)
+        if x in self.lightly:
+            return self.data
+        else:
+            self.data.append(x)
+            self.lightly.add(x)
         return self.data
     
     def popleft(self):
         cell = self.data[0]
+        self.lightly.discard(cell)
         del self.data[0]
         return cell
 
@@ -144,11 +161,11 @@ class Solver:
         
         before: int = -1e8
         after: int = -1e8
-        while queue.data and after != 0:
+        while after != 0:
             node: Node = queue.popleft()
             befcolor: int = node.color
             before = self.score()
-            for i in range(3):
+            for i in range(self.nc - 1):
                 self.nodes[node.point].color = (self.nodes[node.point].color + 1) % self.nc
                 after = self.score()
                 if before <= after:
@@ -158,6 +175,10 @@ class Solver:
                     queue.append(self.nodes[near])
             else:
                 self.nodes[node.point].color = befcolor
+            
+            if not queue.data and after != 0:
+                for k in self.nodes.keys():
+                    queue.append(self.nodes[k])
         
         return {v.point: v.color for v in self.nodes.values()}
     
@@ -165,15 +186,8 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("You will need to execute with filename")
         sys.exit(-1)
-    print("Image Open")
     ip: ImageProcessing = ImageProcessing(Image.open(sys.argv[1]).convert("RGB"))
-    print("Map Classify")
     ip.classify()
-    print("Generate Graph")
     ip.graph()
     solver: Solver = Solver(ip.dgraph)
-    print("Solve")
-    ans: dict = solver.solve()
-    print("Paint")
-    ip.paint(ans)
-    print("Done")
+    ip.paint(solver.solve())
