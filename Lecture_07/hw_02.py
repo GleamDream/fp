@@ -1,7 +1,6 @@
 def merge(L1, L2):
     ret = list()
     while L1 and L2:
-        print(ret)
         if L1[0] < L2[0]:
             ret.append(L1[0])
             del L1[0]
