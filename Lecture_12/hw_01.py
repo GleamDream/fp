@@ -21,12 +21,12 @@ class rational:
             self.n * other.n
         )
     
-    @classmethod
-    def add(self, r1, r2):
+    @staticmethod
+    def add(r1, r2):
         return r1 + r2
     
-    @classmethod
-    def mul(self, r1, r2):
+    @staticmethod
+    def mul(r1, r2):
         return r1 * r2
 
     def __str__(self):

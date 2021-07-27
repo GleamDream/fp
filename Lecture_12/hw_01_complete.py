@@ -38,11 +38,11 @@ class rational:
     def __truediv__(self, other):
         return float(self // other)
 
-    @classmethod
+    @staticmethod
     def add(self, r1, r2):
         return r1 + r2
     
-    @classmethod
+    @staticmethod
     def mul(self, r1, r2):
         return r1 * r2
 
