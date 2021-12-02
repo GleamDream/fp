@@ -18,7 +18,7 @@ class UnionFind:
         stack = list()
         tbl = self.table
         while tbl[y][x] >= (0, 0):
-            stack.append(p)
+            stack.append((x, y))
             x, y = tbl[y][x]
         for _x, _y in stack:
             tbl[_y][_x] = (x, y)
