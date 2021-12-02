@@ -28,19 +28,19 @@ class UnionFind:
         return self.root(p1) == self.root(p2)
     
     def union(self, p1, p2):
-        r1 = self.root(p1)
-        r2 = self.root(p2)
+        x1, y1 = self.root(p1)
+        x2, y2 = self.root(p2)
         if r1 == r2:
             return 
         
-        d1 = self.table[r1[1]][r1[0]]
-        d2 = self.table[r2[1]][r2[0]]
+        d1 = self.table[y1][x1]
+        d2 = self.table[y2][x2]
         if d1 <= d2:
-            self.table[r2[1]][r2[0]] = r1
+            self.table[y2][x2] = (x1, y1)
             if d1 == d2:
-                self.table[r1[1]][r1[0]] = (self.table[r1[1]][r1[0]][0] - 1, self.table[r1[1]][r1[0]][1] - 1)
+                self.table[y1][x1] = (self.table[y1][x1][0] - 1, self.table[y1][x1][1] - 1)
         else:
-            self.table[r1[1]][r1[0]] = r2
+            self.table[y1][x1] = (x2, y2)
 
 class ImageProcessing:
     def __init__(self, img):
