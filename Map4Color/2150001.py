@@ -30,7 +30,7 @@ class UnionFind:
     def union(self, p1, p2):
         x1, y1 = self.root(p1)
         x2, y2 = self.root(p2)
-        if r1 == r2:
+        if x1 == x2 and y1 == y2:
             return 
         
         d1 = self.table[y1][x1]
